@@ -19,7 +19,7 @@
 <h4>1- Clone the Repository and Install Dependencies</h4>
 
 ```
-git clone 
+git clone https://github.com/Ahmad-AlaaEdin/Natours.git
 cd Natours
 npm i
 ```
