@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const slugify = require('slugify');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -124,6 +124,10 @@ tourSchema.virtual('reviews', {
 });
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
+  next();
+});
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
   next();
 });
 tourSchema.index({ startLocation: '2dsphere' });
