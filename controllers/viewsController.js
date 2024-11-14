@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const Booking = require('./../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const res = require('express/lib/response');
 
 exports.getOverview = catchAsync(async (req, res, next) => {
   // 1) Get tour data from collection
@@ -40,6 +41,11 @@ exports.getLoginForm = (req, res) => {
     title: 'Log into your account',
   });
 };
+exports.getSignupForm = (req, res) => {
+  res.status(200).render('signup', {
+    title: 'Create Account',
+  });
+};
 
 exports.getAccount = (req, res) => {
   console.log('account');
@@ -54,8 +60,6 @@ exports.getMyTours = catchAsync(async (req, res, next) => {
 
   const bookings = await Booking.find({ user: req.user.id });
   console.log('2');
-
-  
 
   const tourIDs = bookings.map((el) => el.tour);
   const tours = await Tour.find({ _id: { $in: tourIDs } });
@@ -76,7 +80,7 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   );
 
   res.status(200).render('account', {

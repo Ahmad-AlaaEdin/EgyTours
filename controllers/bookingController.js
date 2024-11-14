@@ -4,6 +4,7 @@ const factory = require('./../controllers/handlerFactory');
 const Tour = require('./../models/tourModel');
 const Booking = require('./../models/bookingModel');
 const Stripe = require('stripe');
+
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
