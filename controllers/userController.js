@@ -4,6 +4,8 @@ const catchAsync = require('./../utils/catchAsync');
 const factory = require('./../controllers/handlerFactory');
 const multer = require('multer');
 const sharp = require('sharp');
+const cloudinary = require('./../utils/cloudinary');
+
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach((el) => {
@@ -14,6 +16,7 @@ const filterObj = (obj, ...allowedFields) => {
 
   return newObj;
 };
+
 // const multerStorage = multer.diskStorage({
 // destination: (req, file, cb) => {
 // cb(null, 'public/img/users');
@@ -38,8 +41,10 @@ const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
 });
-exports.uploadUserPhoto = upload.single('photo');
+///exports.uploadUserPhoto = upload.single('photo');
+exports.uploadUserPhoto = (req, res, next) => {
 
+}
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
@@ -60,8 +65,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     next(
       new AppError(
         'This route is not for password updates, use /updatePassword',
-        400
-      )
+        400,
+      ),
     );
 
   const filteredBody = filterObj(req.body, 'name', 'email');
@@ -94,6 +99,47 @@ exports.createUser = (req, res) => {
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
+};
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+exports.test = (req, res, next) => {
+  // cloudinary.config({
+  //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  //   api_key: process.env.CLOUDINARY_API_KEY,
+  //   api_secret: process.env.CLOUDINARY_API_SECRET,
+  // });
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Convert the buffer from memory storage into a stream and upload to Cloudinary
+    const result = cloudinary.uploader
+      .upload_stream(
+        { folder: 'users_photos' }, // Cloudinary folder
+        async (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            return res
+              .status(500)
+              .json({ error: 'Error uploading to Cloudinary' });
+          }
+
+          console.log(result);
+          res.status(200).json({
+            message: 'File uploaded successfully',
+          });
+        },
+      )
+      .end(req.file.buffer);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Error processing file' });
+  }
 };
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);

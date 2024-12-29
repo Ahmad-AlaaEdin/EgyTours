@@ -2,6 +2,7 @@ const express = require('express');
 const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
 const multer = require('multer');
+const { post } = require('axios');
 
 const upload = multer({ dest: 'public/img/users' });
 
@@ -13,25 +14,26 @@ router.get('/logout', authController.logout);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
+router.post('/test', userController.uploadUserPhoto, userController.test);
 router.use(authController.protect);
 
 router.patch(
   '/updatePassword',
 
-  authController.updatePassword
+  authController.updatePassword,
 );
 
 router.get(
   '/me',
 
   userController.getMe,
-  userController.getUser
+  userController.getUser,
 );
 router.patch(
   '/updateMe',
   userController.uploadUserPhoto,
   userController.resizeUserPhoto,
-  userController.updateMe
+  userController.updateMe,
 );
 router.delete('/deleteMe', userController.deleteMe);
 
